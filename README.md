@@ -24,11 +24,7 @@ Replace **'spec-type'** with the type of specification (sat, smt, alloy, nusmv) 
 java -cp build/classes/java/main com.salarkalantari.specsanalysis.App <spec-type> <file-path>
 ```
 
-## License
-
-This project is licensed under the [MIT License](LICENSE). 
-
-### Third-Party Licenses
+## Third-Party Licenses
 
 - Limboole - https://github.com/maximaximal/limboole/blob/master/LICENSE
 - Z3 - https://github.com/Z3Prover/z3/blob/master/LICENSE.txt
