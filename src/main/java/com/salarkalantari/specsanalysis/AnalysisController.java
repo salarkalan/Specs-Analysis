@@ -44,8 +44,8 @@ public class AnalysisController {
     }
 
     private void printResult(SpecAnalysisResult result) {
-        if (result.isHasError()) {
-            System.out.println("Error: " + result.getResultMessage());
+        if (!result.getSyntaxCheck().equals("Correct")) {
+            System.out.println("Error: " + result.getSyntaxCheck());
         } else {
             System.out.println("Result: " + result.getResultMessage());
             System.out.println("Number of Comments: " + result.getNumberOfComments());

@@ -1,7 +1,7 @@
 package com.salarkalantari.specsanalysis;
 
 public class SpecAnalysisResult {
-    private boolean hasError;
+    private String syntaxCheck;
     private String resultMessage;
     private int numberOfComments;
     private int loc;
@@ -11,12 +11,12 @@ public class SpecAnalysisResult {
 
     // Getters and setters
 
-    public boolean isHasError() {
-        return hasError;
+    public String getSyntaxCheck() {
+        return syntaxCheck;
     }
 
-    public void setHasError(boolean hasError) {
-        this.hasError = hasError;
+    public void setSyntaxCheck(String syntaxCheck) {
+        this.syntaxCheck = syntaxCheck;
     }
 
     public String getResultMessage() {
