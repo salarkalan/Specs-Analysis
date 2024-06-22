@@ -1,13 +1,15 @@
 package com.salarkalantari.specsanalysis;
 
+import java.util.Set;
+
 public class SpecAnalysisResult {
     private String syntaxCheck;
     private String resultMessage;
     private int numberOfComments;
     private int loc;
-    private int halsteadComplexity;
-    private String operators;
-    private String operands;
+    private int[] halstead;
+    private Set<String> operators;
+    private Set<String> operands;
 
     // Getters and setters
 
@@ -43,27 +45,27 @@ public class SpecAnalysisResult {
         this.loc = loc;
     }
 
-    public int getHalsteadComplexity() {
-        return halsteadComplexity;
+    public int[] getHalstead() {
+        return halstead;
     }
 
-    public void setHalsteadComplexity(int halsteadComplexity) {
-        this.halsteadComplexity = halsteadComplexity;
+    public void setHalstead(int[] halstead) {
+        this.halstead = halstead;
     }
 
-    public String getOperators() {
+    public Set<String> getOperators() {
         return operators;
     }
 
-    public void setOperators(String operators) {
+    public void setOperators(Set<String> operators) {
         this.operators = operators;
     }
 
-    public String getOperands() {
+    public Set<String> getOperands() {
         return operands;
     }
 
-    public void setOperands(String operands) {
+    public void setOperands(Set<String> operands) {
         this.operands = operands;
     }
 }

@@ -5,7 +5,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
@@ -16,7 +23,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 
-//import com.yourname.specsanalysis.model.SpecAnalysisResult;
 
 public class SATAnalyzer implements SpecAnalyzer {
     @Override
@@ -26,20 +32,87 @@ public class SATAnalyzer implements SpecAnalyzer {
         result.setNumberOfComments(getSATComments(filePath));
         result.setSyntaxCheck(runLimboole(filePath)[0]);
         result.setResultMessage(runLimboole(filePath)[1]);
+
+        
+        
+        // Get the spec formula from the filePath
+        String formula = "";
+        try {
+            formula = readFileToString(filePath);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        Set<String> uniqueOperators = new HashSet<>();
+        Set<String> uniqueOperands = new HashSet<>();
+        int[] totalOperatorsCount = {0};
+        int[] totalOperandsCount = {0};
+
+        collectOperators(formula, uniqueOperators, totalOperatorsCount);
+        collectOperands(formula, uniqueOperands, totalOperandsCount);
+        
+        int[] halstead = new int[]{ uniqueOperators.size(), uniqueOperands.size(),totalOperatorsCount[0],totalOperandsCount[0]};
+        
+        result.setOperators(uniqueOperators);
+        result.setOperands(uniqueOperands);
+        result.setHalstead(halstead);
+        
+        
         
         return result;
+    }
+    
+            
+    // Collect SAT Operators
+    private static void collectOperators(String formula, Set<String> allOperators, int[] operatorCount) {
+        String[] lines = formula.split("\n");
+        // Use LinkedHashSet to maintain the order of insertion, especially for operators
+        Set<String> operators = new LinkedHashSet<>(List.of("<->", "->", "<-", "&", "|", "!"));
+
+        for (String line : lines) {
+            if (!line.trim().startsWith("%")) { // Ignore comment lines
+                for (String op : operators) {
+                    Pattern pattern = Pattern.compile(Pattern.quote(op));
+                    Matcher matcher = pattern.matcher(line);
+                    while (matcher.find()) {
+                        allOperators.add(matcher.group());
+                        operatorCount[0]++; // Increment total count
+                        // Remove the matched operator from the line to prevent re-matching
+                        line = line.replaceFirst(Pattern.quote(matcher.group()), "");
+                    }
+                }
+            }
+        }
+    }
+
+    
+    // Collect SAT Operands
+    private static void collectOperands(String formula, Set<String> allOperands, int[] operandCount) {
+        String[] lines = formula.split("\n");
+        Pattern pattern = Pattern.compile("[a-zA-Z0-9]+");
+
+        for (String line : lines) {
+            if (!line.trim().startsWith("%")) { // Ignore comment lines
+                Matcher matcher = pattern.matcher(line);
+                while (matcher.find()) {
+                    String operand = matcher.group();
+                    allOperands.add(operand); // Add to global unique operands set for tracking unique operands.
+                    operandCount[0]++; // Increment total operands count for each operand found, including duplicates.
+                }
+            }
+        }
     }
     
     
     //run the spec using Limboole
     private static String[] runLimboole(String filePath){
     	String [] results = new String [] {"", ""};
-   		
+    	
+    	// get the spec formula form the filePath
     	String formula = "";
 			try {
 				formula = readFileToString(filePath);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			String LIMBOOLE_EXE = "lib/limboole.exe";
