@@ -5,7 +5,7 @@ It includes features to run the specifications, capture results or error message
 
 ## Usage
 
- First, clone the repository to your local machine:
+ These are steps to Run the program On **Windows**. First, clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/salarkalan/Specs-Analysis.git
@@ -13,16 +13,21 @@ git clone https://github.com/salarkalan/Specs-Analysis.git
 
 Navigate to the project directory and build the project using the Gradle wrapper:
 ```bash
-./gradlew clean build
+cd path/to/your/project/root
+./gradlew.bat build
 ```
 
-To run the application, use the java command with the appropriate classpath and arguments. 
+Compile the Java Files. 
+```bash
+javac -d out -sourcepath src src/main/java/com/salarkalantari/specsanalysis/*.java
+```
+
+Run the Compiled Class with the appropriate arguments.
+```bash
+java -cp out com.salarkalantari.specsanalysis.App <spec-type> <file-path>
+```
 
 Replace **'spec-type'** with the type of specification (sat, smt, alloy, nusmv) and **'file-path'** with the path to your specification file.
-
-```bash
-java -cp build/classes/java/main com.salarkalantari.specsanalysis.App <spec-type> <file-path>
-```
 
 ## Third-Party Licenses
 
