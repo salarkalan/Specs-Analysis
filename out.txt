@@ -1,3 +1,0 @@
-% SATISFIABLE formula (satisfying assignment follows)
-a = 0
-b = 0

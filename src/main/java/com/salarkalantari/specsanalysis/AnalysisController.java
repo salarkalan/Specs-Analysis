@@ -16,9 +16,9 @@ public class AnalysisController {
             case "sat":
                 analyzer = new SATAnalyzer();
                 break;
-//            case "smt":
-//                analyzer = new SMTAnalyzer();
-//                break;
+            case "smt":
+                analyzer = new SMTAnalyzer();
+                break;
 //            case "alloy":
 //                analyzer = new AlloyAnalyzer();
 //                break;

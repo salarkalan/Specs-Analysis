@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AppTest {
+public class SATAnalyzerTest {
 	
 	// Path to the example SAT specification file in test resources
 	private static String filePath1 = "src/test/resources/SATSpecsExample1.txt";

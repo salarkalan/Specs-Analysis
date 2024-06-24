@@ -9,4 +9,3 @@ public class FileUtil {
         return new String(Files.readAllBytes(Paths.get(filePath)));
     }
 }
-

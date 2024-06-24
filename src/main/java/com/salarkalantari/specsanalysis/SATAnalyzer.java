@@ -32,15 +32,13 @@ public class SATAnalyzer implements SpecAnalyzer {
         result.setNumberOfComments(getSATComments(filePath));
         result.setSyntaxCheck(runLimboole(filePath)[0]);
         result.setResultMessage(runLimboole(filePath)[1]);
-
-        
         
         // Get the spec formula from the filePath
-        String formula = "";
+        String formula=""; 
         try {
-            formula = readFileToString(filePath);
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        	formula = FileUtil.readFile(filePath);
+        } catch (IOException e) {
+        	e.printStackTrace();
         }
 
         Set<String> uniqueOperators = new HashSet<>();
@@ -48,23 +46,21 @@ public class SATAnalyzer implements SpecAnalyzer {
         int[] totalOperatorsCount = {0};
         int[] totalOperandsCount = {0};
 
-        collectOperators(formula, uniqueOperators, totalOperatorsCount);
-        collectOperands(formula, uniqueOperands, totalOperandsCount);
+        collectSATOperators(formula, uniqueOperators, totalOperatorsCount);
+        collectSATOperands(formula, uniqueOperands, totalOperandsCount);
         
         int[] halstead = new int[]{ uniqueOperators.size(), uniqueOperands.size(),totalOperatorsCount[0],totalOperandsCount[0]};
         
         result.setOperators(uniqueOperators);
         result.setOperands(uniqueOperands);
         result.setHalstead(halstead);
-        
-        
-        
+
         return result;
     }
     
-            
+    
     // Collect SAT Operators
-    private static void collectOperators(String formula, Set<String> allOperators, int[] operatorCount) {
+    private static void collectSATOperators(String formula, Set<String> allOperators, int[] operatorCount) {
         String[] lines = formula.split("\n");
         // Use LinkedHashSet to maintain the order of insertion, especially for operators
         Set<String> operators = new LinkedHashSet<>(List.of("<->", "->", "<-", "&", "|", "!"));
@@ -87,7 +83,7 @@ public class SATAnalyzer implements SpecAnalyzer {
 
     
     // Collect SAT Operands
-    private static void collectOperands(String formula, Set<String> allOperands, int[] operandCount) {
+    private static void collectSATOperands(String formula, Set<String> allOperands, int[] operandCount) {
         String[] lines = formula.split("\n");
         Pattern pattern = Pattern.compile("[a-zA-Z0-9]+");
 
@@ -115,6 +111,7 @@ public class SATAnalyzer implements SpecAnalyzer {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			
 			String LIMBOOLE_EXE = "lib/limboole.exe";
 			
 			String IN_FILE = "in.txt";
@@ -162,6 +159,11 @@ public class SATAnalyzer implements SpecAnalyzer {
 				}
 				
 				results[1]= Files.readString(Paths.get(OUT_FILE));
+				
+				// delete the files
+				Files.deleteIfExists(Paths.get(IN_FILE));
+				Files.deleteIfExists(Paths.get(OUT_FILE));
+				Files.deleteIfExists(Paths.get(ERROR_FILE));
 				
 				} catch (IOException e) {
 					results[1] = "";
