@@ -8,10 +8,13 @@ It includes features to run the specifications, capture results or error message
 To use this project, you need to have the following installed on your system:
 
 - Java
+- NuSMV [NuSMV download page](https://nusmv.fbk.eu/downloads.html)
+
+Download and add the following files in the /lib folder in the project
 - Limboole executable file from the [Limboole website](https://fmv.jku.at/limboole/)
 - z3  [z3/releases](https://github.com/Z3Prover/z3/releases)
 - Alloy executable file from the [Alloy website](https://alloytools.org/download.html)
-- NuSMV [NuSMV download page](https://nusmv.fbk.eu/downloads.html)
+
 
 ## Usage
 
