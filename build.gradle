@@ -32,6 +32,9 @@ dependencies {
     // Include the Z3 library
     //implementation name: 'com.microsoft.z3', version: '4.13.0', ext: 'jar'
     implementation files('lib/com.microsoft.z3.jar')
+    
+    // Alloy
+    implementation files('lib/org.alloytools.alloy.dist.jar')
 }
 
 application {

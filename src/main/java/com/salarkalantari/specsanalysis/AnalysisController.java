@@ -6,7 +6,6 @@ package com.salarkalantari.specsanalysis;
 //import com.yourname.specsanalysis.util.FileUtil;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 public class AnalysisController {
 
@@ -19,12 +18,12 @@ public class AnalysisController {
             case "smt":
                 analyzer = new SMTAnalyzer();
                 break;
-//            case "alloy":
-//                analyzer = new AlloyAnalyzer();
-//                break;
-//            case "nusmv":
-//                analyzer = new NuSMVAnalyzer();
-//                break;
+            case "alloy":
+                analyzer = new AlloyAnalyzer();
+                break;
+            case "nusmv":
+            	analyzer = new NuSMVAnalyzer();
+                break;
             default:
                 System.out.println("Unknown specification type: " + specType);
                 System.out.println("Accepted types: sat / smt / alloy / nusmv");

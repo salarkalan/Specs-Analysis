@@ -12,12 +12,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.microsoft.z3.BoolExpr;
-import com.microsoft.z3.Context;
-import com.microsoft.z3.Solver;
-import com.microsoft.z3.Z3Exception;
 
-public class SMTAnalyzer implements SpecAnalyzer {
+public class AlloyAnalyzer implements SpecAnalyzer {
 	@Override
     public SpecAnalysisResult analyze(String filePath) {
 		SpecAnalysisResult result = new SpecAnalysisResult();
@@ -30,12 +26,14 @@ public class SMTAnalyzer implements SpecAnalyzer {
         	e.printStackTrace();
         }
         
-		result.setLoc(getSMTLOC(spec));
-        result.setNumberOfComments(getSMTComments(spec));
-        result.setSyntaxCheck(checkSyntaxSMT(spec));
-        result.setResultMessage(runCodeSMT(spec));
-        
-
+        result.setLoc(getAlloyLOC(spec));
+        result.setNumberOfComments(getAlloyComments(spec));
+		
+		
+		
+		
+		
+		
         Set<String> uniqueOperators = new HashSet<>();
         Set<String> uniqueOperands = new HashSet<>();
         int[] totalOperatorsCount = {0};
@@ -44,10 +42,10 @@ public class SMTAnalyzer implements SpecAnalyzer {
         Set<String> specialOperators = new HashSet<>();
         Map<String, Integer> nameOccurrences = new HashMap<>();
         
-        collectSMTOperators(spec, uniqueOperators, totalOperatorsCount);
-        collectSMTOperands(spec, uniqueOperands, totalOperandsCount);
+        collectAlloyOperators(spec, uniqueOperators, totalOperatorsCount);
+        collectAlloyOperands(spec, uniqueOperands, totalOperandsCount);
         
-        collectSMTSpecialOperatorNamesAndCountOccurrences(spec, specialOperators, nameOccurrences);
+        collectSpecialOperatorNamesAndCountOccurrencesAlloy(spec, specialOperators, nameOccurrences);
         
         // adding special operators to the allOperators
         for (Map.Entry<String, Integer> entry : nameOccurrences.entrySet()) {
@@ -64,19 +62,23 @@ public class SMTAnalyzer implements SpecAnalyzer {
         result.setOperators(uniqueOperators);
         result.setOperands(uniqueOperands);
         result.setHalstead(halstead);
-        
+		
+		
+		
+		
+		
 		return result;
 	}
-
-	//Count the number of lines of code (LOC) in a SMT specification.
-    private static int getSMTLOC(String spec) {
+	
+	//Count the number of lines of code (LOC) in a Alloy specification.
+    private static int getAlloyLOC(String spec) {
     	int locCount = 0;
         try (BufferedReader br = new BufferedReader(new StringReader(spec))) {
             String line;
             boolean inBlockComment = false;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith(";")) {
+                if (line.isEmpty() || line.startsWith("--") || line.startsWith("//")) {
                     // Skip empty lines and single-line comments
                     continue;
                 }
@@ -100,16 +102,15 @@ public class SMTAnalyzer implements SpecAnalyzer {
         }
         return locCount;
     }
-   
-	
-	//Count the number of comment lines in a SMT specification.
-    private static int getSMTComments(String spec) {
+    
+  //Count the number of comment lines in a Alloy specification.
+    private static int getAlloyComments(String spec) {
         int commentCount = 0;
         try (BufferedReader br = new BufferedReader(new StringReader(spec))) {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.startsWith(";") || line.contains(";")) {
+                if (line.startsWith("--") || line.contains("--") || line.startsWith("//") || line.contains("//") ) {
                     commentCount++;
                 }
             }
@@ -119,62 +120,18 @@ public class SMTAnalyzer implements SpecAnalyzer {
         return commentCount;
     }
     
-    
-    public String checkSyntaxSMT(String spec) {
-		Context ctx = new Context();
-        try {	
-            // Parse the SMT-LIB input
-            BoolExpr[] parsedFormula = ctx.parseSMTLIB2String(spec, null, null, null, null);
-
-            // Checking satisfiability of the parsed formula
-            Solver solver = ctx.mkSolver();
-            solver.add(parsedFormula);
-            return "Correct";
-            
-        } catch (Z3Exception e) {
-            // Catch and print syntax errors
-            return e.getMessage();
-        } finally {
-            ctx.close();
-        } 	
-    }
-    
-    
-    public String runCodeSMT(String spec) {
-    	
-    	Context ctx = new Context();
-        try {     	
-            // Parse the SMT-LIB input
-            BoolExpr[] parsedFormula = ctx.parseSMTLIB2String(spec, null, null, null, null);
-            // Example: Checking satisfiability of the parsed formula
-            Solver solver = ctx.mkSolver();
-            solver.add(parsedFormula);
-             
-            return solver.check().toString() +"\n" + solver.getModel();
-
-        } catch (Z3Exception e) {
-            // Catch and print syntax errors
-        	return "runCode failed!";
-        } finally {
-            ctx.close();
-        } 
-    }
-    
-    private static void collectSMTOperators(String formula, Set<String> allOperators, int[] operatorCount) {
-        String[] lines = formula.split("\n");
+    private static void collectAlloyOperators(String formula, Set<String> allOperators, int[] operatorCount) {
+    	String[] lines = formula.split("\n");
         // Sorting operators by length in descending order to ensure longer operators are prioritized
-        List<String> operators = Arrays.asList("=", ">", "<", "<=", ">=", "=>", "+", "-", "*", "/", "mod", "div", "rem",
-            "^", "to_real", "and", "or", "not", "distinct", "to_int", "is_int", "~", "xor", "if", "ite", "root-obj", "sat", "unsat",
-            "const", "map", "store", "select", "unsat", "bit1", "bit0", "bvneg", "bvadd", "bvsub", "bvmul", "bvsdiv", "bvudiv",
-            "bvsrem", "bvurem", "bvsmod", "bvule", "bvsle", "bvuge", "bvsge", "bvult", "bvslt", "bvugt", "bvsgt", "bvand", "bvor",
-            "bvnot", "bvxor", "bvnand", "bvnor", "bvxnor", "concat", "sign_extend", "zero_extend", "extract", "repeat", "bvredor",
-            "bvredand", "bvcomp", "bvshl", "bvlshr", "bvashr", "rotate_left", "rotate_right", "get-assertions", 
-            "define-fun", "declare-fun", "declare-sort", "define-sort", "declare-datatypes",       
-            "define-const", "assert", "push", "pop", "check-sat", "declare-const", "get-model", "get-value", 
-            "reset", "eval", "set-logic", "help", "get-assignment", "get-proof", "exit", "set-option", "get-option",
-            "declare-var", "get-unsat-core", "echo", "let", "forall", "exists",  "check-sat-using","set-info","declare-map", "declare-rel",
-             "apply", "simplify", "display", "as", "!", "get-info",  "rule",
-            "query", "get-user-tactics").stream()
+        
+        // "Int", "String" are considered constants and Operands
+        List<String> operators = Arrays.asList("=>", "<=>", "++", "=<", "->", ">=", "||", "<:", ":>", "&&", "!=", "+", "-", "&", ".", "~", "*",
+        		"^","!", "#",
+        		"one", "lone", "none", "some", "abstract", "all", "iff", "but", "else", "extends", "set", "implies", 
+        	    "module", "open", "and", "disj", "for", "in", "no", "or", "as", "sum", "exactly", 
+        	    "iden", "let", "not", "univ", "enum", "var", "steps", "always", "historically", "eventually", "once", 
+        	    "after", "before", "until", "since", "releases", "triggered", "check", "fact", "sig", "fun", "pred", 
+        	    "assert", "run").stream()
             .sorted((a, b) -> Integer.compare(b.length(), a.length())) // Sort by length
             .map(Pattern::quote) // Quote to make them safe for regex
             .toList(); 
@@ -184,7 +141,7 @@ public class SMTAnalyzer implements SpecAnalyzer {
         Pattern pattern = Pattern.compile(combinedPattern);
 
         for (String line : lines) {
-            if (!line.trim().startsWith(";")) { // Ignore comment lines
+            if (!line.trim().startsWith("--") && !line.trim().startsWith("//")) { // Ignore comment lines
                 Matcher matcher = pattern.matcher(line);
                 while (matcher.find()) {
                     String matchedOperator = matcher.group();
@@ -196,29 +153,22 @@ public class SMTAnalyzer implements SpecAnalyzer {
     }
     
     
-    private static void collectSMTOperands(String formula, Set<String> allOperands, int[] operandCount) {
-        String[] lines = formula.split("\n");
-        // Include hyphens within operand names.
-        Pattern pattern = Pattern.compile("[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*");
+    private static void collectAlloyOperands(String formula, Set<String> allOperands, int[] operandCount) {
+    	String[] lines = formula.split("\n");
+    	// Include hyphens within operand names.
+        Pattern pattern = Pattern.compile("[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*+(?:_[a-zA-Z0-9]+)*");
 
         // Set of words (Operators) to be excluded
-        Set<String> excludedWords = new HashSet<>(Arrays.asList("=", ">", "<", "<=", ">=", "=>", "+", "-", "*", "/",
-        		
-        		"mod", "div", "rem", 
-        		"^", "to_real", "and", "or", "not", "distinct","to_int", "is_int", "~", "xor", "if", "ite", "root-obj","sat", "unsat",
-        	    "const", "map", "store", "select", "unsat","bit1", "bit0", "bvneg", "bvadd", "bvsub", "bvmul", "bvsdiv", "bvudiv",
-        	    "bvsrem", "bvurem", "bvsmod",  "bvule", "bvsle", "bvuge", "bvsge", "bvult","bvslt", "bvugt", "bvsgt", "bvand", "bvor",
-        	    "bvnot", "bvxor", "bvnand","bvnor", "bvxnor", "concat", "sign_extend", "zero_extend", "extract","repeat", "bvredor",
-        	    "bvredand", "bvcomp", "bvshl", "bvlshr", "bvashr","rotate_left", "rotate_right", "get-assertions", 
-        	    
-        	    "define-fun", "define-const", "assert", "push", "pop", "assert", "check-sat","declare-const", "declare-fun", "get-model",
-        	    "get-value", "declare-sort","declare-datatypes", "reset", "eval", "set-logic", "help", "get-assignment", "get-proof",
-        	    "exit", "get-unsat-core", "echo", "let", "forall", "exists", "define-sort", "set-option", "get-option","check-sat-using", 
-        	    "set-info", "apply", "simplify", "display", "as", "!", "get-info", "declare-map", "declare-rel", "declare-var", "rule",
-        	    "query", "get-user-tactics"));
+        Set<String> excludedWords = new HashSet<>(Arrays.asList("=>", "<=>", "++", "=<", "->", ">=", "||", "<:", ":>", "&&", "!=", "+", "-", "&", ".", "~", "*",
+        		"^","!", "#",
+        		"one", "lone", "none", "some", "abstract", "all", "iff", "but", "else", "extends", "set", "implies", 
+        	    "module", "open", "and", "disj", "for", "in", "no", "or", "as", "sum", "exactly", 
+        	    "iden", "let", "not", "univ", "enum", "var", "steps", "always", "historically", "eventually", "once", 
+        	    "after", "before", "until", "since", "releases", "triggered", "check", "fact", "sig", "fun", "pred", 
+        	    "assert", "run"));
 
         for (String line : lines) {
-            if (!line.trim().startsWith(";")) { // Ignore comment lines
+            if (!line.trim().startsWith("--") && !line.trim().startsWith("//")) { // Ignore comment lines
                 Matcher matcher = pattern.matcher(line);
                 while (matcher.find()) {
                     String operand = matcher.group();
@@ -231,18 +181,19 @@ public class SMTAnalyzer implements SpecAnalyzer {
             }
         }
     }
-  
     
-    private static void collectSMTSpecialOperatorNamesAndCountOccurrences(String formula, 
+    
+    private static void collectSpecialOperatorNamesAndCountOccurrencesAlloy(String formula, 
 			Set<String> specialOperators, 
 			Map<String, Integer> nameOccurrences) {
     	String[] lines = formula.split("\n");
-    	Pattern pattern = Pattern.compile("\\b(declare-fun|define-fun)\\s+(\\w+)");
+    	Pattern pattern = Pattern.compile("\\b(fun|pred|assert)\\s+(\\w+)");
+
     	for (String line : lines) {
-    		if (!line.trim().startsWith(";")) { // Ignore comment lines
+    		if (!line.trim().startsWith("--") && !line.trim().startsWith("//")) { // Ignore comment lines
     			Matcher matcher = pattern.matcher(line);
     			while (matcher.find()) {
-    				String operator = matcher.group(1); // "declare-fun" or "define-fun"
+    				String operator = matcher.group(1); // 
     				String name = matcher.group(2); // The name following the operator
 
     				// Add the combined operator and name to the set of special operators
@@ -253,6 +204,7 @@ public class SMTAnalyzer implements SpecAnalyzer {
     			}
     		}
     	}
+
     	// After collecting names, count their occurrences throughout the formula
     	for (String name : nameOccurrences.keySet()) {
     		Pattern namePattern = Pattern.compile("\\b" + Pattern.quote(name) + "\\b");
@@ -263,10 +215,13 @@ public class SMTAnalyzer implements SpecAnalyzer {
     				nameOccurrences.put(name, nameOccurrences.get(name) + 1);
     			}
     		}
+
     		// Since the name was already counted once when initially found, subtract one to adjust
     		nameOccurrences.put(name, nameOccurrences.get(name) - 1);
     	}
     }
-   
+    
+    
+
 
 }
