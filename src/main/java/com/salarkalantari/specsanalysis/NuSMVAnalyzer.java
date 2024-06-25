@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,14 +24,7 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
         	e.printStackTrace();
         }
         
-        
-        result.setLoc(getNuSMVLOC(spec));
-        result.setNumberOfComments(getNuSMVComments(spec));
-        result.setSyntaxCheck(checkSyntaxNuSMV(filePath));
-        
-        
-
-        
+        // for calculating operators and operands for Halstead   
         Set<String> uniqueOperators = new HashSet<>();
         Set<String> uniqueOperands = new HashSet<>();
         int[] totalOperatorsCount = {0};
@@ -44,16 +35,17 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
         
         int[] halstead = new int[]{ uniqueOperators.size(), uniqueOperands.size(),totalOperatorsCount[0],totalOperandsCount[0]};
         
+        // adding result to the spec
+        result.setLoc(getNuSMVLOC(spec));
+        result.setNumberOfComments(getNuSMVComments(spec));
+        result.setSyntaxCheck(checkSyntaxNuSMV(filePath));
+        result.setResultMessage(executeNuSMV(filePath));
         result.setOperators(uniqueOperators);
         result.setOperands(uniqueOperands);
         result.setHalstead(halstead);
         
-        
         return result;
 	}
-	
-	
-	
 	
 	//Count the number of lines of code (LOC) in a NuSMV specification.
     private static int getNuSMVLOC(String spec) {
@@ -88,7 +80,6 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
         return locCount;
     }
    
-	
 	//Count the number of comment lines in a NuSMV specification.
     private static int getNuSMVComments(String spec) {
         int commentCount = 0;
@@ -105,7 +96,6 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
         }
         return commentCount;
     }
-
 
     private static void collectNuSMVOperators(String formula, Set<String> allOperators, int[] operatorCount) {
     	String[] lines = formula.split("\n");
@@ -149,8 +139,6 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
     	}
     }
 
-
-
     private static void collectNuSMVOperands(String formula, Set<String> allOperands, int[] operandCount) {
     	String[] lines = formula.split("\n");
 
@@ -188,7 +176,6 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
     	}
     }
 
-
     private static String removeInlineComments(String line) {
     	int commentIndexDash = line.indexOf("--");
     	int commentIndexSlash = line.indexOf("//");
@@ -210,11 +197,9 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
     	return line.trim(); // Return the line directly if no comments are found
     }
     
-public static String checkSyntaxNuSMV (String modelFilePath) {
-    	
+    public static String checkSyntaxNuSMV (String modelFilePath) {
     	String result = "";
     	Process process = null;
-    	
         try {
             String command = "nusmv " + modelFilePath;
             process = Runtime.getRuntime().exec(command);
@@ -229,29 +214,57 @@ public static String checkSyntaxNuSMV (String modelFilePath) {
                 while ((line = errorReader.readLine()) != null) {
                     errors.append(line).append("\n");
                 }
-
-                // Print the collected error messages
                 if (errors.length() > 0) {
-                    //System.out.println("Execution Errors:");
-                    //System.out.println(errors.toString());
                 	result = errors.toString();
                 }
             } else {
-                //System.out.println("Correct");
-            	
             	result = "Correct";
             }
         } catch (IOException | InterruptedException e) {
-            //System.out.println("An error occurred during model execution:");
-            //System.out.println(e.getMessage());
         	result = e.getMessage();
         }finally {
         	process.destroy();
         }
-        
        return result; 
     }
-	
-	
 
+    public static String executeNuSMV(String modelFilePath) {
+    	StringBuilder result = new StringBuilder();
+    	Process process = null;
+
+    	try {
+    		String command = "nusmv " + modelFilePath;
+    		process = Runtime.getRuntime().exec(command);
+
+    		// Check the exit value to determine if the execution was successful
+    		int exitValue = process.waitFor();
+    		if (exitValue == 0) {
+    			// If execution succeeded, read the input stream
+    			BufferedReader inputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+    			String line;
+    			while ((line = inputReader.readLine()) != null) {
+    				result.append(line).append("\n");
+    			}
+    		} else {
+    			// If execution failed, read the error stream
+    			BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+    			StringBuilder errors = new StringBuilder();
+    			String line;
+    			while ((line = errorReader.readLine()) != null) {
+    				errors.append(line).append("\n");
+    			}
+    			if (errors.length() > 0) {
+    				return errors.toString();
+    			}
+    		}
+    	} catch (IOException | InterruptedException e) {
+    		return e.getMessage();
+    	} finally {
+    		if (process != null) {
+    			process.destroy();
+    		}
+    	}
+    	return result.toString();
+    }
+	
 }

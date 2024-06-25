@@ -65,6 +65,8 @@ public class AnalysisController {
         System.out.println("Lines of Code (LOC): " + result.getLoc());
         System.out.println("Unique Operators: " + result.getOperators());
         System.out.println("Unique Operands: " + result.getOperands());
+        System.out.println("Total Operators: " + result.getHalstead()[2]);
+        System.out.println("Total Operands: " + result.getHalstead()[3]);
         System.out.println("-----------------------------------------------------------------");
              
         int n1 = result.getHalstead()[0];
