@@ -4,7 +4,7 @@ public class App {
     public static void main(String[] args) {
     	
     	// Example how to run the App by defining specType and filePath
-    	args = new String [] {"alloy", "src/test/resources/AlloySpec1.txt"};
+    	//args = new String [] {"nusmv", "src/test/resources/NuSMVSpec1.txt"};
     	
         if (args.length < 2) {
             System.out.println("Usage: java -cp out com.salarkalantari.specsanalysis.App <spec-type> <file-path>");

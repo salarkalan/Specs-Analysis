@@ -36,7 +36,8 @@ dependencies {
     // Alloy
     implementation files('lib/org.alloytools.alloy.dist.jar')
     
-    implementation 'edu.mit.csail.sdg:alloy4.2:4.2'
+    // OR 
+    //implementation 'edu.mit.csail.sdg:alloy4.2:4.2'
 }
 
 application {
