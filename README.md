@@ -3,6 +3,16 @@
 This project analyze specifications written in various formal languages such as SAT, SMT, Alloy, and NuSMV. 
 It includes features to run the specifications, capture results or error messages, count comments, calculate lines of code (LOC), compute Halstead complexity metrics, operators, and operands.
 
+## Prerequisites
+
+To use this project, you need to have the following installed on your system:
+
+- Java
+- Limboole executable file from the [Limboole website](https://fmv.jku.at/limboole/)
+- z3  [z3/releases](https://github.com/Z3Prover/z3/releases)
+- Alloy executable file from the [Alloy website](https://alloytools.org/download.html)
+- NuSMV [NuSMV download page](https://nusmv.fbk.eu/downloads.html)
+
 ## Usage
 
  These are steps to Run the program On **Windows**. First, clone the repository to your local machine:

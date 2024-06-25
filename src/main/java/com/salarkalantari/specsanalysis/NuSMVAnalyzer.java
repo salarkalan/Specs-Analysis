@@ -2,6 +2,7 @@ package com.salarkalantari.specsanalysis;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
         
         result.setLoc(getNuSMVLOC(spec));
         result.setNumberOfComments(getNuSMVComments(spec));
+        result.setSyntaxCheck(checkSyntaxNuSMV(filePath));
         
         
 
@@ -149,9 +151,6 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
 
 
 
-
-
-
     private static void collectNuSMVOperands(String formula, Set<String> allOperands, int[] operandCount) {
     	String[] lines = formula.split("\n");
 
@@ -209,6 +208,48 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
     		return line.substring(0, commentIndex).trim();
     	}
     	return line.trim(); // Return the line directly if no comments are found
+    }
+    
+public static String checkSyntaxNuSMV (String modelFilePath) {
+    	
+    	String result = "";
+    	Process process = null;
+    	
+        try {
+            String command = "nusmv " + modelFilePath;
+            process = Runtime.getRuntime().exec(command);
+
+            // Check the exit value to determine if the execution was successful
+            int exitValue = process.waitFor();
+            if (exitValue != 0) {
+                // If execution failed, read the error stream
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                StringBuilder errors = new StringBuilder();
+                String line;
+                while ((line = errorReader.readLine()) != null) {
+                    errors.append(line).append("\n");
+                }
+
+                // Print the collected error messages
+                if (errors.length() > 0) {
+                    //System.out.println("Execution Errors:");
+                    //System.out.println(errors.toString());
+                	result = errors.toString();
+                }
+            } else {
+                //System.out.println("Correct");
+            	
+            	result = "Correct";
+            }
+        } catch (IOException | InterruptedException e) {
+            //System.out.println("An error occurred during model execution:");
+            //System.out.println(e.getMessage());
+        	result = e.getMessage();
+        }finally {
+        	process.destroy();
+        }
+        
+       return result; 
     }
 	
 	
