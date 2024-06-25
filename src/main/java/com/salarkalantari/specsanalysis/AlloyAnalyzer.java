@@ -12,6 +12,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.mit.csail.sdg.alloy4.A4Reporter;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.ast.Command;
+import edu.mit.csail.sdg.ast.Module;
+import edu.mit.csail.sdg.parser.CompUtil;
+import edu.mit.csail.sdg.translator.A4Options;
+import edu.mit.csail.sdg.translator.A4Solution;
+import edu.mit.csail.sdg.translator.TranslateAlloyToKodkod;
+
 
 public class AlloyAnalyzer implements SpecAnalyzer {
 	@Override
@@ -25,15 +34,8 @@ public class AlloyAnalyzer implements SpecAnalyzer {
         } catch (IOException e) {
         	e.printStackTrace();
         }
-        
-        result.setLoc(getAlloyLOC(spec));
-        result.setNumberOfComments(getAlloyComments(spec));
-		
-		
-		
-		
-		
-		
+
+
         Set<String> uniqueOperators = new HashSet<>();
         Set<String> uniqueOperands = new HashSet<>();
         int[] totalOperatorsCount = {0};
@@ -58,6 +60,13 @@ public class AlloyAnalyzer implements SpecAnalyzer {
         }
         
         int[] halstead = new int[]{ uniqueOperators.size(), uniqueOperands.size(),totalOperatorsCount[0],totalOperandsCount[0]};
+        
+        
+        
+        result.setLoc(getAlloyLOC(spec));
+        result.setNumberOfComments(getAlloyComments(spec));
+		result.setSyntaxCheck(checkAlloySyntax(filePath));
+		result.setResultMessage(runAlloy(filePath));
         
         result.setOperators(uniqueOperators);
         result.setOperands(uniqueOperands);
@@ -221,7 +230,57 @@ public class AlloyAnalyzer implements SpecAnalyzer {
     	}
     }
     
+    public static String checkAlloySyntax(String alloyFilePath) {
+        try {
+            // Parse the Alloy model file
+            CompUtil.parseEverything_fromFile(A4Reporter.NOP, null, alloyFilePath);
+            return "Correct";
+        } catch (Err e) {
+            return "Error: " + e.toString();
+        }
+    }
+
     
+    public String runAlloy(String alloyFilePath) {
+    	
+    	String syntaxResult = new String();
+
+		try {
+			String[] args = new String [] {alloyFilePath};
+			
+			A4Reporter rep = new A4Reporter() {};
+			
+			for (String filename : args) {
+				
+				Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
+				
+				A4Options options = new A4Options();
+	
+				options.solver = A4Options.SatSolver.SAT4J;
+	
+				for (Command command : world.getAllCommands()) {
+					
+					// Execute the command
+					A4Solution ans = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), command, options);
+
+					if (ans.satisfiable()) {
+						syntaxResult ="Instance found. Predicate is consistent. Use Alloy Analyzer to visualize the instances.";
+					}	
+					if (!ans.satisfiable()) {
+						syntaxResult ="Unsatisfiable. No instance found. Predicate may be inconsistent.";
+					}
+				}
+			}
+			
+		}catch (Err e) {
+            // This block catches syntax errors or other issues in the Alloy model.
+            syntaxResult = "runCode failed!";
+		} catch (Exception e) {
+		}
+		
+		return syntaxResult;
+    			
+    }
 
 
 }
