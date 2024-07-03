@@ -1,37 +1,5 @@
-abstract sig Person {
-    killed: set Person,
-    hates: set Person,
-    richer: set Person
-}
+// just a simple Alloy Spec
+sig A{}
 
-one sig Agatha, Butler, Charles extends Person {}
+run {}
 
-pred puzzle {
-    // Constraint 1\
-   some x: Person | Agatha in x.killed
-
-    // Constraint 2
-    all x, y: Person | y in x.killed implies (y in x.hates and not (y in x.richer))
-
-    // Constraint 3
-    all x: Person | x in Agatha.hates implies not (x in Charles.hates)
-
-    // Constraint 4
-    Agatha in Agatha.hates and Charles in Agatha.hates
-
-    // Constraint 5
-    all x: Person | not(Agatha in x.richer) implies x in Butler.hates
-
-    // Constraint 6
-    all x: Person | x in Agatha.hates implies x in Butler.hates
-
-    // Constraint 7
-    all x: Person | some y: Person | not(y in x.hates)
-
-   // Additional Constraints
-   // no Agatha.hates // Constraint 8
-   // Agatha != Butler // Constraint 9
-  // no x: Person | x.hates = x // Constraint 10
-}
-
-run puzzle for 3

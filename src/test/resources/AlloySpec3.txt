@@ -1,0 +1,11 @@
+sig Node{
+    next: lone Node
+    value: one Int
+}
+
+
+sig List {
+    header : lone Node
+}
+
+run {}

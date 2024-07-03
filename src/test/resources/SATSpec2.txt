@@ -1,0 +1,3 @@
+% Task 1a
+% Provide a formula that holds.
+(p ->q) | (r ->p)

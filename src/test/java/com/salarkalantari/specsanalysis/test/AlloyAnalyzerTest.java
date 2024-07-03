@@ -1,7 +1,7 @@
 package com.salarkalantari.specsanalysis.test;
 
 import com.salarkalantari.specsanalysis.SpecAnalysisResult;
-import com.salarkalantari.specsanalysis.SMTAnalyzer;
+import com.salarkalantari.specsanalysis.AlloyAnalyzer;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,67 +11,68 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 
-public class SMTAnalyzerTest {
+public class AlloyAnalyzerTest {
 
     // Path to the examples SMT specification file in test resources
-    private static final String filePath1 = "src/test/resources/SMTSpec1.txt";
-    private static final String filePath2 = "src/test/resources/SMTSpec2.txt";
-    private static final String filePath3 = "src/test/resources/SMTSpec3.txt";
+    private static final String filePath1 = "src/test/resources/AlloySpec1.txt";
+    private static final String filePath2 = "src/test/resources/AlloySpec2.txt";
+    private static final String filePath3 = "src/test/resources/AlloySpec3.txt";
 
-    private SMTAnalyzer analyzer1;
+    private AlloyAnalyzer analyzer1;
     private SpecAnalysisResult resultSpec1;
     
-    private SMTAnalyzer analyzer2;
+    private AlloyAnalyzer analyzer2;
     private SpecAnalysisResult resultSpec2;
     
-    private SMTAnalyzer analyzer3;
+    private AlloyAnalyzer analyzer3;
     private SpecAnalysisResult resultSpec3;
 
     
     @BeforeEach
     void setUp() {
-        analyzer1 = new SMTAnalyzer();
+        analyzer1 = new AlloyAnalyzer();
         resultSpec1 = analyzer1.analyze(filePath1);
         
-        analyzer2 = new SMTAnalyzer();
+        analyzer2 = new AlloyAnalyzer();
         resultSpec2 = analyzer2.analyze(filePath2);
         
-        analyzer3 = new SMTAnalyzer();
+        analyzer3 = new AlloyAnalyzer();
         resultSpec3 = analyzer3.analyze(filePath3);
     }
     
     @Test
-    void testSMTSpec1LOC() {
-    	int expectedLOC = 5;
+    void testAlloySpec1LOC() {
+    	int expectedLOC = 2;
     	assertEquals(expectedLOC, resultSpec1.getLoc());
     }
     
     @Test
-    void testSMTSpec1Comments() {
+    void testAlloySpec1Comments() {
     	int expectedComments = 1;
     	assertEquals(expectedComments, resultSpec1.getNumberOfComments());
     }
-
+    
     @Test
-    void testSMTSpec2LOC() {
-        int expectedLOC = 15; 
-        assertEquals(expectedLOC, resultSpec2.getLoc());
-    }
-
-    @Test
-    void testSMTSpec2Comments() {
-        int expectedComments = 5; 
-        assertEquals(expectedComments, resultSpec2.getNumberOfComments());
+    void testAlloySpec1Halstead() {
+        int[] expectedHalstead = new int[] {2,1,2,1};
+        assertArrayEquals(expectedHalstead, resultSpec1.getHalstead());
     }
     
     @Test
-    void testSMTSpec2Halstead() {
-        int[] expectedHalstead = new int[] {12,10,49,61};
+    void testAlloySpec2LOC() {
+        int expectedLOC = 11; 
+        assertEquals(expectedLOC, resultSpec2.getLoc());
+    }
+
+    
+    @Test
+    void testAlloySpec2Halstead() {
+        int[] expectedHalstead = new int[] {5,6,9,9};
         assertArrayEquals(expectedHalstead, resultSpec2.getHalstead());
     }
 
     @Test
-    void testSMTSpec3Syntax() {
+    void testAlloySpec3Syntax() {
         assertNotEquals("Correct", resultSpec3.getHalstead());
     }
 }

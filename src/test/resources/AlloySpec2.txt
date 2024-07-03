@@ -1,0 +1,16 @@
+sig Node{
+  next: lone Node,
+  value: one Val
+  }
+  
+sig Val {}
+
+one sig List {
+  header : lone Node
+  }
+  
+fact {
+  
+  }
+  
+run {}
