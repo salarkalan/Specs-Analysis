@@ -34,7 +34,7 @@ public class AlloyAnalyzer implements SpecAnalyzer {
         } catch (IOException e) {
         	e.printStackTrace();
         }
-
+        
 
         Set<String> uniqueOperators = new HashSet<>();
         Set<String> uniqueOperands = new HashSet<>();
@@ -71,10 +71,6 @@ public class AlloyAnalyzer implements SpecAnalyzer {
         result.setOperators(uniqueOperators);
         result.setOperands(uniqueOperands);
         result.setHalstead(halstead);
-		
-		
-		
-		
 		
 		return result;
 	}

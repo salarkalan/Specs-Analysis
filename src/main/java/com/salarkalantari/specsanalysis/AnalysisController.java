@@ -1,10 +1,5 @@
 package com.salarkalantari.specsanalysis;
 
-
-//import com.yourname.specsanalysis.model.SpecAnalysisResult;
-//import com.yourname.specsanalysis.service.*;
-//import com.yourname.specsanalysis.util.FileUtil;
-
 import java.io.IOException;
 
 public class AnalysisController {

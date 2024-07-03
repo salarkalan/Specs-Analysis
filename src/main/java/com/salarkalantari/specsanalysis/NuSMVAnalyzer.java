@@ -102,7 +102,6 @@ public class NuSMVAnalyzer implements SpecAnalyzer {
 
     	// Sorting operators by length in descending order to ensure longer operators are prioritized
 
-
     	// these are considered operators:  "boolean", "integer", "real", "TRUE", "FALSE"  //   "in" is excluded
     	// "Int", "String" are considered constants and Operands
     	List<String> operators = Arrays.asList("!", "::", "-", "*",  "/", "mod", "+", "-", "<<", ">>", "union", "=", ":=", "!=", "<",
